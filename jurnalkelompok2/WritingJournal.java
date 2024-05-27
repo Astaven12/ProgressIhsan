@@ -12,11 +12,17 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
+
+import java.io.OutputStreamWriter;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 
 public class WritingJournal extends AppCompatActivity {
 
@@ -55,6 +61,7 @@ public class WritingJournal extends AppCompatActivity {
 
                 try {
                     String filename = generateUniqueFilename(journalTitle);
+                    File fileDir = getApplicationContext().getFilesDir();
                     FileWriter writer = new FileWriter(getApplicationContext().getFilesDir() + "/" + filename);
                     BufferedWriter bufferedWriter = new BufferedWriter(writer);
                     bufferedWriter.write(journalTitle + "\n" + journalContent);
@@ -92,6 +99,6 @@ public class WritingJournal extends AppCompatActivity {
         String dateString = today.format(DATE_FORMAT);
         String timeString = time.format(DateTimeFormatter.ofPattern("HHmmss"));
 
-        return String.format("%s_%s.txt", title.replaceAll("[^a-zA-Z0-9\\s]", ""), dateString + "_" + timeString); // Sanitize title and combine
+        return String.format("%s_%s.txt", title.replaceAll("[^a-zA-Z0-9\\s]", ""), dateString.replace("/", "-") + "_" + timeString); // Sanitize title and combine
     }
 }
