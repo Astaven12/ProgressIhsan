@@ -66,7 +66,7 @@ public class WritingJournal extends AppCompatActivity {
                     File file = new File(getApplicationContext().getFilesDir(), filename);  // Create File object
                     FileOutputStream fOutputStream = new FileOutputStream(file);  // Use FileOutputStream
                     BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fOutputStream));
-                    Toast.makeText(WritingJournal.this, "Dir:" + file, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(WritingJournal.this, "Dir:" + file, Toast.LENGTH_LONG).show();
 
 
 

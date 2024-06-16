@@ -54,4 +54,20 @@
         app:layout_constraintVertical_bias="0.124"
         tools:ignore="VisualLintButtonSize" />
 
+    <Button
+        android:id="@+id/view_journals"
+        android:layout_width="338dp"
+        android:layout_height="99dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="53dp"
+        android:layout_marginBottom="77dp"
+        android:text="View Journals"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/jurnal"
+        app:layout_constraintVertical_bias="0.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

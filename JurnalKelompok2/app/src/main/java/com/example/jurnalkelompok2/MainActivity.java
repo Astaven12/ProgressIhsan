@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 public class MainActivity extends AppCompatActivity {
 
     private Button jurnal;
+    private Button viewJournals;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,12 +23,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         jurnal = findViewById(R.id.jurnal);
+        viewJournals = findViewById(R.id.view_journals);
 
         jurnal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent bukaJurnal = new Intent(getApplicationContext(), WritingJournal.class);
                 startActivity(bukaJurnal); // Use startActivity for single intent
+            }
+        });
+
+        viewJournals.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent viewJournalIntent = new Intent(getApplicationContext(), ViewJournalActivity.class);
+                startActivity(viewJournalIntent);
             }
         });
 
