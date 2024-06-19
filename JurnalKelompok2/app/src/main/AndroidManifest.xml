@@ -21,6 +21,9 @@
         <activity
             android:name=".ViewJournalActivity"
             android:exported="false"/>
+        <activity
+            android:name=".EditJournalActivity"
+            android:exported="false"/>
 
         <activity
             android:name=".MainActivity"

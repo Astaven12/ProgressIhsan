@@ -2,49 +2,51 @@ package com.example.jurnalkelompok2;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button jurnal;
-    private Button viewJournals;
+    private CalendarView calendarView;
+    private Button addJournalButton;
+    private long selectedDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        jurnal = findViewById(R.id.jurnal);
-        viewJournals = findViewById(R.id.view_journals);
+        calendarView = findViewById(R.id.calendarView2);
+        addJournalButton = findViewById(R.id.jurnal);
 
-        jurnal.setOnClickListener(new View.OnClickListener() {
+        // Set initial selected date to current date
+        selectedDate = calendarView.getDate();
+
+        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
-            public void onClick(View view) {
-                Intent bukaJurnal = new Intent(getApplicationContext(), WritingJournal.class);
-                startActivity(bukaJurnal); // Use startActivity for single intent
+            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+                // Adjust month value (0-11 to 1-12)
+                month++;
+                // Store selected date as milliseconds since epoch
+                selectedDate = new java.util.GregorianCalendar(year, month - 1, dayOfMonth).getTimeInMillis();
+                Toast.makeText(MainActivity.this, "Selected date: " + dayOfMonth + "/" + month + "/" + year, Toast.LENGTH_SHORT).show();
             }
         });
 
-        viewJournals.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent viewJournalIntent = new Intent(getApplicationContext(), ViewJournalActivity.class);
-                startActivity(viewJournalIntent);
-            }
+        addJournalButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, WritingJournal.class);
+            intent.putExtra("selectedDate", selectedDate);
+            startActivity(intent);
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+        // Handle "View Journals" button click
+        Button viewJournalsButton = findViewById(R.id.view_journals);
+        viewJournalsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ViewJournalActivity.class);
+            startActivity(intent);
         });
     }
 }

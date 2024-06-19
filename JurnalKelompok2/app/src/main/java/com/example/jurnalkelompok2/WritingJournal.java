@@ -8,32 +8,28 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class WritingJournal extends AppCompatActivity {
 
     private EditText judul, isi;
     private Button saveButton, exitButton;
     private TextView time;
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Predefined format
+    private long selectedDate;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-
         setContentView(R.layout.activity_writing_jurnal);
 
         judul = findViewById(R.id.judul);
@@ -42,7 +38,9 @@ public class WritingJournal extends AppCompatActivity {
         exitButton = findViewById(R.id.exitButton);
         time = findViewById(R.id.time);
 
-        time.setText(today());
+        // Get the selected date from the intent
+        selectedDate = getIntent().getLongExtra("selectedDate", System.currentTimeMillis());
+        time.setText(formatDate(selectedDate));
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,20 +53,12 @@ public class WritingJournal extends AppCompatActivity {
                     return;
                 }
 
-                boolean errorOccurred = false;
-
                 try {
                     String filename = generateUniqueFilename(journalTitle);
 
-//                    FileWriter writer = new FileWriter(getApplicationContext().getFilesDir() + "/" + filename);
-//                    BufferedWriter bufferedWriter = new BufferedWriter(writer);
-
-                    File file = new File(getApplicationContext().getFilesDir(), filename);  // Create File object
-                    FileOutputStream fOutputStream = new FileOutputStream(file);  // Use FileOutputStream
+                    File file = new File(getApplicationContext().getFilesDir(), filename);
+                    FileOutputStream fOutputStream = new FileOutputStream(file);
                     BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fOutputStream));
-//                    Toast.makeText(WritingJournal.this, "Dir:" + file, Toast.LENGTH_LONG).show();
-
-
 
                     bufferedWriter.write(journalTitle + "\n" + journalContent);
                     bufferedWriter.close();
@@ -79,7 +69,6 @@ public class WritingJournal extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e("WritingJournal", "Error saving journal data: " + e.getMessage());
                     Toast.makeText(WritingJournal.this, "Error saving journal!", Toast.LENGTH_SHORT).show();
-                    errorOccurred = true;
                 }
             }
         });
@@ -92,19 +81,16 @@ public class WritingJournal extends AppCompatActivity {
         });
     }
 
-    private String today() {
-        LocalDate today = LocalDate.now(); // Get current date
-        return today.format(DATE_FORMAT); // Use predefined format
+    private String formatDate(long dateInMillis) {
+        Date date = new Date(dateInMillis);
+        return DATE_FORMAT.format(date);
     }
 
     private String generateUniqueFilename(String title) {
-        LocalDate today = LocalDate.now(); // Get current date
-        LocalTime time = LocalTime.now(); // Get current time
+        Date date = new Date(selectedDate);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+        String formattedDate = sdf.format(date);
 
-        // Format date and time strings using predefined formatters
-        String dateString = today.format(DATE_FORMAT);
-        String timeString = time.format(DateTimeFormatter.ofPattern("HHmmss"));
-
-        return String.format("%s_%s.txt", title.replaceAll("[^a-zA-Z0-9\\s]", ""), dateString.replace("/", "-") + "_" + timeString); // Sanitize title and combine
+        return String.format("%s_%s.txt", title.replaceAll("[^a-zA-Z0-9\\s]", ""), formattedDate);
     }
 }

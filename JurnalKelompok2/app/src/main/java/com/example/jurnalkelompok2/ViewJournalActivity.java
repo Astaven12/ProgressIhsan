@@ -1,85 +1,83 @@
 package com.example.jurnalkelompok2;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.view.View;
-
+import android.widget.AdapterView;
+import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class ViewJournalActivity extends AppCompatActivity {
 
-    private static final String TAG = "ViewJournalActivity";
-    private ListView journalListView;
-    private TextView journalContentTextView;
+    private ListView listView;
+    private ArrayList<String> journalTitles;
+    private ArrayList<String> fileNames;
+    private JournalAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_journal);
 
-        journalListView = findViewById(R.id.journal_list_view);
-        journalContentTextView = findViewById(R.id.journal_content);
+        listView = findViewById(R.id.listView);
+        journalTitles = new ArrayList<>();
+        fileNames = new ArrayList<>();
+        loadJournalFiles();
 
-        if (journalListView == null) {
-            Log.e(TAG, "journalListView is null");
-        }
-        if (journalContentTextView == null) {
-            Log.e(TAG, "journalContentTextView is null");
-        }
+        adapter = new JournalAdapter(this, journalTitles, fileNames);
+        listView.setAdapter(adapter);
 
-        try {
-            File journalDir = new File(getFilesDir().getPath());
-            File[] journalFiles = journalDir.listFiles();
-
-            if (journalFiles == null) {
-                Log.e(TAG, "No journal files found in directory.");
-                return;
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String fileName = fileNames.get(position);
+                openJournal(fileName);
             }
+        });
+    }
 
-            ArrayList<String> journalTitles = new ArrayList<>();
-            for (File file : journalFiles) {
-                // Filter files to only include those with a specific extension (e.g., .txt)
-                if (file.isFile() && file.getName().endsWith(".txt")) {
-                    journalTitles.add(file.getName());
+    private void loadJournalFiles() {
+        File directory = getFilesDir();
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                String fileName = file.getName();
+                if (fileName.contains("_")) {
+                    String[] parts = fileName.split("_");
+                    if (parts.length >= 2) {
+                        String title = parts[0];
+                        String datePart = parts[1];
+
+                        try {
+                            // Parse the date in YYYYMMDD format
+                            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
+                            Date date = inputFormat.parse(datePart);
+
+                            // Format the date in DD-MM-YYYY format
+                            SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+                            String formattedDate = outputFormat.format(date);
+
+                            journalTitles.add(title + "\n" + formattedDate);
+                            fileNames.add(fileName);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, journalTitles);
-            journalListView.setAdapter(adapter);
-
-            journalListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    String fileName = (String) parent.getItemAtPosition(position);
-                    loadJournalContent(fileName);
-                }
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "Error loading journal files", e);
         }
     }
 
-    private void loadJournalContent(String fileName) {
-        StringBuilder content = new StringBuilder();
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(openFileInput(fileName)));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
-            }
-            reader.close();
-        } catch (Exception e) {
-            Log.e(TAG, "Error reading journal file: " + fileName, e);
-        }
-        journalContentTextView.setText(content.toString());
+    private void openJournal(String fileName) {
+        Intent intent = new Intent(this, EditJournalActivity.class);
+        intent.putExtra("fileName", fileName);
+        startActivity(intent);
     }
 }
